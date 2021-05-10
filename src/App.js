@@ -1,33 +1,42 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css';
 import Title from './components/Title';
 import AddBlog from './components/AddBlog';
 import Blogs from './components/Blogs';
 
 function App() {
-  const [blogs, setBlogs] = useState([{
-    id: "1",
-    title: "The first blog",
-    author: "Nidhin",
-    description: "The first messages..."
-  },
-  {
-    id: "2",
-    title: "Some random title",
-    author: "Shraddha",
-    description: "Some random text"
-  },
-  {
-    id: "3",
-    title: "Title ",
-    author: "Varen",
-    description: "Here are more... "
-  }]);
+  const [blogs, setBlogs] = useState([]);
 
-  const addBlog = (blog) => {
-    setBlogs([blog, ...blogs]);
+  useEffect(() => {
+    const getBlogs = async () => {
+      const blogsList = await fetchBlogs();
+      setBlogs(blogsList)
+    }
+    getBlogs();
+  }, [])
+
+  const fetchBlogs = async () => {
+    const res = await fetch('http://localhost:5000/blogs');
+    const data = await res.json();
+
+    return data;
   }
-  const deleteBlog = (id) => {
+
+  const addBlog = async (blog) => {
+    const res = await fetch('http://localhost:5000/blogs', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(blog)
+    })
+    const data = await res.json()
+    setBlogs([...blogs, data]);
+  }
+  const deleteBlog = async (id) => {
+    await fetch(`http://localhost:5000/blogs/${id}`, {
+      method: 'DELETE'
+    })
     setBlogs(blogs.filter((blog) => blog.id !== id))
   }
   const sortBlogs = () => {
@@ -44,15 +53,16 @@ function App() {
         </section>
         <section>
           <Title text="Blogs" withFilter onToggle={sortBlogs} />
-          {blogs.length > 0 ?
-            <Blogs blogs={blogs} onDelete={deleteBlog} />
-            :
-            <div
-              className="bg-white rounded-xl text-left p-5 shadow-xl mb-5">
-              No blog added yet...
+          <div className="flex flex-col-reverse">
+            {blogs.length > 0 ?
+              <Blogs blogs={blogs} onDelete={deleteBlog} />
+              :
+              <div
+                className="bg-white rounded-xl text-left p-5 shadow-xl mb-5">
+                No blog added yet...
             </div>
-          }
-
+            }
+          </div>
         </section>
       </div>
     </div>

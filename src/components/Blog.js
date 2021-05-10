@@ -10,7 +10,6 @@ const Blog = ({ blog, onDelete }) => {
             <p className="text-md text-gray-600 mt-2 font-light leading-7">{blog.description}</p>
             <p className="text-sm text-gray-400 italic mt-2">:- {blog.author}</p>
             <AiOutlineCloseCircle className="absolute top-5 right-5 text-2xl text-red-400 cursor-pointer" onClick={() => onDelete(blog.id)} />
-
         </div>
     )
 }
